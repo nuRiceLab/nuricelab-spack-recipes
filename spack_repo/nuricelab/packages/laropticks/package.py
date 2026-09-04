@@ -16,7 +16,7 @@ class Laropticks(CMakePackage, FnalGithubPackage):
 
     # MPD requires a 'develop' version to exist. Point it at the branch you
     # develop from; you can still `git checkout` any branch in the srcs area.
-    version("develop", branch="spack_version", get_full_repo=True)
+    version("develop", branch="spack", get_full_repo=True)
 
     cxxstd_variant("17", "20", default="17")
 
@@ -52,7 +52,7 @@ class Laropticks(CMakePackage, FnalGithubPackage):
     depends_on("range-v3")
 
     # GPU optical simulation
-    depends_on("opticks")
+    # depends_on("opticks")
 
     @cmake_preset
     def cmake_args(self):
