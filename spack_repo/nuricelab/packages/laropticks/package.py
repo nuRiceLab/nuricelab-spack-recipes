@@ -52,7 +52,7 @@ class Laropticks(CMakePackage, FnalGithubPackage):
     depends_on("range-v3")
 
     # GPU optical simulation
-    # depends_on("opticks")
+    depends_on("riceopticks")
 
     @cmake_preset
     def cmake_args(self):
@@ -63,18 +63,16 @@ class Laropticks(CMakePackage, FnalGithubPackage):
             flags.append("-Wno-error=deprecated-declarations")
         return (flags, None, None)
 
-    @sanitize_paths
+    #@sanitize_paths
     def setup_build_environment(self, env):
         prefix = Prefix(self.build_directory)
         env.prepend_path("PATH", prefix.bin)
         env.prepend_path("CET_PLUGIN_PATH", prefix.lib)
-        env.prepend_path("FHICL_FILE_PATH", prefix.job)
-        env.prepend_path("FW_SEARCH_PATH", prefix.G4)
+        env.prepend_path("FHICL_FILE_PATH", join_path(self.prefix, "fcl"))
         env.prepend_path("FW_SEARCH_PATH", prefix.gdml)
 
-    @sanitize_paths
+    #@sanitize_paths
     def setup_run_environment(self, env):
         env.prepend_path("CET_PLUGIN_PATH", self.prefix.lib)
-        env.prepend_path("FHICL_FILE_PATH", self.prefix.job)
-        env.prepend_path("FW_SEARCH_PATH", self.prefix.G4)
+        env.prepend_path("FHICL_FILE_PATH", join_path(self.prefix, "fcl"))
         env.prepend_path("FW_SEARCH_PATH", self.prefix.gdml)
