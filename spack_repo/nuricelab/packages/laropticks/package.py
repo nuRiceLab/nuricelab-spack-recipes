@@ -16,7 +16,7 @@ class Laropticks(CMakePackage, FnalGithubPackage):
 
     # MPD requires a 'develop' version to exist. Point it at the branch you
     # develop from; you can still `git checkout` any branch in the srcs area.
-    version("develop", branch="spack", get_full_repo=True)
+    version("develop", branch="main", get_full_repo=True)
 
     cxxstd_variant("17", "20", default="17")
 

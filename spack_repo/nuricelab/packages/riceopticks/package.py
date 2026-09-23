@@ -15,58 +15,64 @@ class Riceopticks(CMakePackage, CudaPackage):
     git = "https://github.com/%s" % repo
     version_patterns = ["v1.0r", "v1.0r"]
 
-    version("main", branch="main", get_full_repo=True)
+    version("main", branch="master", get_full_repo=True)
 
     variant("cxxstd", default="17", values=("11", "14", "17", "20"), multi=False, description="C++ standard")
     
+    depends_on("c", type="build")
+    depends_on("cxx", type="build")
     # externals (variants pinned by the larsoft env; geant4 must be +gdml)
     depends_on("cuda")
     depends_on("clhep")
     depends_on("geant4")
-    depends_on("glew")
-    depends_on("glfw")
-    depends_on("glm")
-    depends_on("glu")
-    depends_on("nlohmann-json")
-    depends_on("mesa")
     depends_on("optix-dev")
-    depends_on("openssl")
-    depends_on("plog")
+    #depends_on("openssl")
     depends_on("python")
+    def cmake(self, spec, prefix):
+        pass
 
+    def build(self, spec, prefix):
+        pass
   
-    def cmake_args(self):
-        return [self.define_from_variant("CMAKE_CXX_STANDARD", "cxxstd")]
+    def install(self, spec, prefix):
+        env["OPTICKS_HOME"] = str(self.stage.source_path)
+        env["OPTICKS_PREFIX"] = str(prefix)
+        env["OPTICKS_CUDA_PREFIX"] = str(spec["cuda"].prefix)
+        env["OPTICKS_OPTIX_PREFIX"] = str(spec["optix-dev"].prefix)
 
-     #  THIS EXECUTING ONLY DURING A FRESH SOURCE BUILD
-    
-    def setup_build_environment(self, env):
-        # When compiling from source, we feed the variables that 'opticks-full' 
-        # or the CMake build relies on, dynamically derived from Spack dependencies.
-        if "+cuda" in self.spec:
-            cuda_root = self.spec["cuda"].prefix
-            env.set("OPTICKS_CUDA_PREFIX", cuda_root)
-            env.prepend_path("PATH", join_path(cuda_root, "bin"))
-            env.prepend_path("LD_LIBRARY_PATH", join_path(cuda_root, "lib64"))
-            env.prepend_path("CMAKE_PREFIX_PATH", cuda_root)
+        bash = which("bash", required=True)
 
-        if "optix" in self.spec:
-            env.set("OPTICKS_OPTIX_PREFIX", self.spec["optix"].prefix)
-
-        if "riceopticks" in self.spec:
-            env.set("OPTICKS_PREFIX", self.spec["riceopticks"].prefix)
-
-
-    # EXECUTES WHEN USERS RUN 'spack load riceopticks'
-    
+        setup_script = join_path(
+            self.stage.source_path,
+            "opticks.bash"
+        )
+        #bash("-c",f'source "{setup_script}" && 'f'opticks-env && ' f'opticks-full')
+        bash(
+              "-c",
+              f'''
+              source "{setup_script}"
+              opticks-env
+              echo "----------------------------"
+              echo OPTICKS_HOME: $OPTICKS_HOME
+              echo OPTICKS_PREFIX: $OPTICKS_PREFIX
+              echo OPTICKS_CUDA_PREFIX: $OPTICKS_CUDA_PREFIX
+              echo OPTICKS_OPTIX_PREFIX: $OPTICKS_OPTIX_PREFIX
+              echo "----------------------------"
+              opticks-full
+              '''
+            )
+        #bash("-c",f'source "{setup_script}" && opticks-full')
     def setup_run_environment(self, env):
-        # 1. Point to your own compiled paths (your build folder artifacts)
+        env.set("OPTICKS_PREFIX", self.prefix)
+
         env.prepend_path("PATH", join_path(self.prefix, "bin"))
+        #env.prepend_path("PATH", join_path(self.prefix, "lib"))
+
         env.prepend_path("LD_LIBRARY_PATH", join_path(self.prefix, "lib"))
-        # 2. Pass variables downstream so Opticks continues working at runtime
-        if "+cuda" in self.spec:
+        #env.prepend_path("LD_LIBRARY_PATH", join_path(self.prefix, "lib64"))
+
+        if "cuda" in self.spec:
             env.set("OPTICKS_CUDA_PREFIX", self.spec["cuda"].prefix)
-        if "optix" in self.spec:
-            env.set("OPTICKS_OPTIX_PREFIX", self.spec["optix"].prefix)
-        if "opticks" in self.spec:
-            env.set("OPTICKS_PREFIX", self.spec["opticks"].prefix)
+
+        if "optix-dev" in self.spec:
+            env.set("OPTICKS_OPTIX_PREFIX", self.spec["optix-dev"].prefix)
