@@ -12,11 +12,13 @@ class Laropticks(CMakePackage, FnalGithubPackage):
 
     repo = "nuRiceLab/laropticks"
     git = "https://github.com/%s" % repo
-    version_patterns = ["v10_09_01", "10.09.01"]
-
+    version_patterns = ["v1.0r", "v1.0r"]
+    maintainers("ilkerparmaksiz")
     # MPD requires a 'develop' version to exist. Point it at the branch you
     # develop from; you can still `git checkout` any branch in the srcs area.
-    version("develop", branch="main", get_full_repo=True)
+    version("latest", branch="main", get_full_repo=True)
+    version("develop", branch="develop", get_full_repo=True)
+    version("v1.0r", tag="v1.0r")
 
     cxxstd_variant("17", "20", default="17")
 
