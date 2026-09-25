@@ -67,10 +67,9 @@ class Opticks(CMakePackage, CudaPackage):
         env.set("OPTICKS_PREFIX", self.prefix)
 
         env.prepend_path("PATH", join_path(self.prefix, "bin"))
-        #env.prepend_path("PATH", join_path(self.prefix, "lib"))
-
+        
         env.prepend_path("LD_LIBRARY_PATH", join_path(self.prefix, "lib"))
-        #env.prepend_path("LD_LIBRARY_PATH", join_path(self.prefix, "lib64"))
+        env.prepend_path("LD_LIBRARY_PATH", join_path(self.prefix, "lib64"))
 
         if "cuda" in self.spec:
             env.set("OPTICKS_CUDA_PREFIX", self.spec["cuda"].prefix)
