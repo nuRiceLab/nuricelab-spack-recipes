@@ -13,19 +13,19 @@ class Laropticks(CMakePackage, FnalGithubPackage):
     repo = "nuRiceLab/laropticks"
     git = "https://github.com/%s" % repo
     version_patterns = ["v1.0r", "v1.0r"]
-    maintainers("ilkerparmaksiz")
+    maintainers("ilkerparmaksiz","ahiguera-mx")
     # MPD requires a 'develop' version to exist. Point it at the branch you
     # develop from; you can still `git checkout` any branch in the srcs area.
     version("latest", branch="main", get_full_repo=True)
     version("develop", branch="develop", get_full_repo=True)
-    version("v1.0r", tag="v1.0r")
+    version("v1_0r", tag="v1_0r")
 
     cxxstd_variant("17", "20", default="17")
 
     depends_on("c", type="build")
     depends_on("cxx", type="build")
     depends_on("cetmodules", type="build")
-
+	
     # art / cet suite
     depends_on("art")
     depends_on("art-root-io")
@@ -46,7 +46,7 @@ class Laropticks(CMakePackage, FnalGithubPackage):
     depends_on("larsoft-data")
     depends_on("nurandom")
     depends_on("nusimdata")
-
+    depends_on("larana", type="run")	
     # externals (variants pinned by the larsoft env; geant4 must be +gdml)
     depends_on("clhep")
     depends_on("geant4")
@@ -55,6 +55,17 @@ class Laropticks(CMakePackage, FnalGithubPackage):
 
     # GPU optical simulation
     depends_on("riceopticks")
+   
+    # DUNE Specific
+    depends_on("dunesw",type="run")
+    depends_on("dunecore",type="run")
+    depends_on("duneopdet", type="run")
+    depends_on("dunesim", type="run")
+    depends_on("dunepdlegacy", type="run")
+    depends_on("dunedataprep", type="run")
+    depends_on("dunecalib", type="run")
+    depends_on("duneprototypes", type="run")   
+    depends_on("dunereco", type="run")
 
     @cmake_preset
     def cmake_args(self):
@@ -78,3 +89,16 @@ class Laropticks(CMakePackage, FnalGithubPackage):
         env.prepend_path("CET_PLUGIN_PATH", self.prefix.lib)
         env.prepend_path("FHICL_FILE_PATH", join_path(self.prefix, "fcl"))
         env.prepend_path("FW_SEARCH_PATH", self.prefix.gdml)
+        env.set("GEOM", "PDFullSimOpticks")
+        env.set("OPTICKS_MAX_PHOTON", "80000000")
+        env.set("OPTICKS_MAX_SLOT", "80000000")
+        env.set("OPTICKS_EVENT_SKIPAHEAD", "80000000")
+        env.set("OPTICKS_PROPAGATE_EPSILON", "0.01")
+        env.set("OPTICKS_PROPAGATE_EPSILON0", "0")
+        env.set("OPTICKS_MAX_BOUNCE", "100")
+        env.set("OPTICKS_INTEGRATION_MODE", "1") # 1 GPU ONLY, 2 CPU ONLY, and 3 Both CPU and GPU
+        env.set("OPTICKS_EVENT_MODE", "Minimal")
+        env.set("CUDA_VISIBLE_DEVICES", "0")
+        env.set("OPTICKS_START_INDEX", "0")
+        env.set("SProf__WRITE", "0")
+
